@@ -1,0 +1,14 @@
+import { z } from 'zod';
+
+// Define the Zod validation schema
+export const serviceSchema = z.object({
+  name: z.string({ message: 'Service name is required' }), // Title of the service
+  description: z.string({ message: "Service description is required" }),
+  price: z.number().min(0, 'Price must be a positive number'), // Cost of the service
+  duration: z.number().int().positive('Duration must be a positive integer'), // Duration of the service
+  isDeleted: z.boolean().default(false), // Indicates whether the service is marked as deleted
+});
+
+export const OurServiceValidation = {
+  serviceSchema
+}
