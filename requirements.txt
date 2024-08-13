@@ -848,3 +848,31 @@ The API employs Zod for input validation, ensuring data consistency. When valida
 * * *
 
 ###
+
+ "errorMessages": [
+        {
+            "path": "",
+            "message": "E11000 duplicate key error collection: univerity-management.students index: email_1 dup key: { email: \\"user2@gmail.com\\" }"
+        }
+    ],
+
+    "issues": [
+            {
+                "code": "invalid_type",
+                "expected": "string",
+                "received": "undefined",
+                "path": [
+                    "description"
+                ],
+                "message": "Service description is required"
+            },
+            {
+                "code": "invalid_type",
+                "expected": "number",
+                "received": "string",
+                "path": [
+                    "price"
+                ],
+                "message": "Expected number, received string"
+            }
+        ],

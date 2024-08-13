@@ -14,7 +14,6 @@ import config from '../../../config';
 export const createUser = asyncHandler(async (req: Request, res: Response) => {
   // Destructure request body
   const payload: TUser = req.body;
-  payload.role = "admin";
   const hashedPassword = await bcrypt.hash(payload.password, 10);
   payload.password = hashedPassword
   // Use Mongoose's create method to save the user to the database
@@ -57,7 +56,7 @@ export const userLogin = asyncHandler(async (req: Request, res: Response) => {
     config.JWT_SECRET_TOKEN as string,
     {
       algorithm: 'HS256',
-      expiresIn: '1h'
+      expiresIn: config.JWT_SECRET_TOKEN_ExpiresIn
     }
   );
 

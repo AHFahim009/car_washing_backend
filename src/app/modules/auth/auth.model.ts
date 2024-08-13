@@ -24,6 +24,7 @@ const UserSchema: Schema = new Schema<TUser>({
     type: String,
     required: true,
     trim: true,
+    unique: true
   },
   role: {
     type: String,

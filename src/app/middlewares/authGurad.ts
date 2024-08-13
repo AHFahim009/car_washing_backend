@@ -16,11 +16,13 @@ export const authGuard = ([...roles]: ["user" | "admin"]) => {
     if (!verifyToken) throw new AppError(403, "Token is not valid");
 
     const userCredentials = jwt.decode(token) as JwtPayload;
-    console.log("user credentials", userCredentials);
+    console.log(userCredentials);
+
 
     if (roles && !roles.includes(userCredentials.role))
       throw new AppError(401, "You have no permission");
-
+    // Attach user credentials to the request object
+    req.user = userCredentials;
     next();
   });
 };
