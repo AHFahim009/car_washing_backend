@@ -1,6 +1,6 @@
-vercel link: " https://ecommerce2024bootcamp-ahfahim009s-projects.vercel.app/"
+live link: " https://car-washing-backend-fxvk.onrender.com/"
 
-# full-stack-assignment-04 : E_Commerce
+# full-stack-assignment-03 : Car washing management system
 
 Welcome to Assignment2! This project is built with TypeScript and Express, using mongodb as the database. Below are the steps to run this project on your local machine.
 
@@ -10,7 +10,7 @@ Make sure you have the following software installed on your machine:
 
 Node.js
 npm (Node Package Manager)
-Postgres (Make sure postgres is running on your machine)
+Mongodb
 
 # Getting Started:
 

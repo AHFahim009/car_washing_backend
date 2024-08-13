@@ -1,5 +1,6 @@
 import config from "../../config";
 import { AppError } from "../error/AppError";
+import UserModel from "../modules/auth/auth.model";
 import asyncHandler from "../utils/asyncHandler";
 
 import jwt, { JwtPayload } from "jsonwebtoken";
@@ -16,7 +17,8 @@ export const authGuard = ([...roles]: ["user" | "admin"]) => {
     if (!verifyToken) throw new AppError(403, "Token is not valid");
 
     const userCredentials = jwt.decode(token) as JwtPayload;
-    console.log(userCredentials);
+    const isUserExit = await UserModel.findById(userCredentials._id)
+    if (!isUserExit) throw new AppError(403, "Sorry! You have no permission");
 
 
     if (roles && !roles.includes(userCredentials.role))
