@@ -68,12 +68,12 @@ const handleSuccessCallback = asyncHandler(async (req, res) => {
   if (pay_status === "Successful") {
     // Send success response or save booking data
     res.redirect(
-      `http://localhost:5173/payment-callback?status=${pay_status}&tran_id=${pg_txnid}&amount=${amount}`
+      `https://car-washing-frontend-git-main-ahfahim009s-projects.vercel.app/payment-callback?status=${pay_status}&tran_id=${pg_txnid}&amount=${amount}`
     );
   } else {
     // Handle other statuses if needed
     res.redirect(
-      `http://localhost:5173/payment-callback/?status=${pay_status}&tran_id=${pg_txnid}&amount=${amount}`
+      `https://car-washing-frontend-git-main-ahfahim009s-projects.vercel.app/payment-callback/?status=${pay_status}&tran_id=${pg_txnid}&amount=${amount}`
     );
   }
 });
