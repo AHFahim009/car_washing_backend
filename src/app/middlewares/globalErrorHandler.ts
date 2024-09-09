@@ -18,7 +18,6 @@ export interface ErrorResponse {
   statusCode?: number;
   errorMessages: ErrorMessage[];
   stack?: string; // Optional stack trace
-  error?: any;
 }
 
 export const globalErrorHandler: ErrorRequestHandler = (
@@ -64,7 +63,7 @@ export const globalErrorHandler: ErrorRequestHandler = (
     success,
     message,
     errorMessages,
-    error: err,
+
     ...(process.env.NODE_ENV === "development" && { stack: err.stack }), // Include stack trace only in development mode
   };
 

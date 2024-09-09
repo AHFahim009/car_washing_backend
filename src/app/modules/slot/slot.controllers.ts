@@ -40,13 +40,15 @@ export const createSlots = asyncHandler(async (req, res) => {
       service,
       date,
       startTime: { $lte: format(currentEndTime, "HH:mm") },
-      endTime: { $gte: format(currentStartTime, "HH:mm") }
+      endTime: { $gte: format(currentStartTime, "HH:mm") },
     });
 
     if (existingSlot) {
-      throw new AppError(409, "A slot already exists within the specified time range");
+      throw new AppError(
+        409,
+        "A slot already exists within the specified time range"
+      );
     }
-
 
     const slot = new SlotModel({
       service,
@@ -72,54 +74,99 @@ export const createSlots = asyncHandler(async (req, res) => {
   });
 });
 
-
 export const getAvailableSlots = asyncHandler(async (req, res) => {
-
-  const { date, serviceId } = req.query;
+  const { date, serviceId, isBooked } = req.query;
 
   // Validate the date format if provided
   if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date as string)) {
-    throw new AppError(400, 'Invalid date format. Use YYYY-MM-DD.')
+    throw new AppError(400, "Invalid date format. Use YYYY-MM-DD.");
   }
 
   // Validate serviceId if provided
   if (serviceId) {
-    const isService = await ServiceModel.findById(serviceId)
-    if (!isService) throw new AppError(400, 'Invalid service ID.')
+    const isService = await ServiceModel.findById(serviceId);
+    if (!isService) throw new AppError(400, "Invalid service ID.");
+  }
+
+  // Validate isBooked if provided
+  const validStatuses = ["available", "booked", "canceled"];
+  if (isBooked && !validStatuses.includes(isBooked as string)) {
+    throw new AppError(
+      400,
+      `Invalid isBooked value. Use one of: ${validStatuses.join(", ")}.`
+    );
   }
 
   // Build query conditions
   const query: any = {};
   if (date) query.date = date;
   if (serviceId) query.service = serviceId;
+  if (isBooked) query.isBooked = isBooked;
 
   // Fetch slots from the database
-  const slots = await SlotModel.find(query).populate('service').exec();
+  const slots = await SlotModel.find(query).populate("service").exec();
 
   // Process slots to remove those with isDeleted set to true
-  // Filter available slots where service is not deleted and slot is either available or canceled
   const availableSlots = slots.filter((slot: any) => {
     const service = slot.service as { isDeleted: boolean };
-    return !service.isDeleted && (slot.isBooked === 'available' || slot.isBooked === 'canceled');
+    return !service.isDeleted;
   });
 
   // Send the response
   sendResponse(res, {
     success: true,
     statusCode: 200,
-    message: 'Available slots retrieved successfully',
-    data: availableSlots
+    message: "Available slots retrieved successfully",
+    data: availableSlots,
   });
+});
 
+export const slotStatusChanged = asyncHandler(async (req, res) => {
+  const { slotId } = req.params;
 
+  // Find the slot by ID
+  const slot = await SlotModel.findById(slotId);
 
+  if (!slot) {
+    throw new AppError(404, "Slot not found");
+  }
 
+  // Toggle the status
+  slot.isBooked = slot.isBooked === "canceled" ? "available" : "canceled";
 
-})
+  // Save the updated slot
+  await slot.save();
 
+  // Send the response
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Status updated successfully",
+    data: slot,
+  });
+});
+export const slotStatus = asyncHandler(async (req, res) => {
+  const { slotId } = req.params;
 
+  // Find the slot by ID
+  const slot = await SlotModel.findById(slotId);
+
+  if (!slot) {
+    throw new AppError(404, "Slot not found");
+  }
+
+  // Send the response
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "selected slot status",
+    data: slot.isBooked,
+  });
+});
 
 export const SlotControllers = {
   createSlots,
-  getAvailableSlots
+  getAvailableSlots,
+  slotStatusChanged,
+  slotStatus
 };

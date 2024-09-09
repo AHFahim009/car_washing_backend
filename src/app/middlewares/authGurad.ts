@@ -17,9 +17,8 @@ export const authGuard = ([...roles]: ["user" | "admin"]) => {
     if (!verifyToken) throw new AppError(403, "Token is not valid");
 
     const userCredentials = jwt.decode(token) as JwtPayload;
-    const isUserExit = await UserModel.findById(userCredentials._id)
-    if (!isUserExit) throw new AppError(403, "Sorry! You have no permission");
-
+    const isUserExit = await UserModel.findById(userCredentials._id);
+    if (!isUserExit) throw new AppError(403, "Sorry! invalid request");
 
     if (roles && !roles.includes(userCredentials.role))
       throw new AppError(401, "You have no permission");

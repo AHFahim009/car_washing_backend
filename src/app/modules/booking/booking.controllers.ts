@@ -2,46 +2,52 @@
 import { AppError } from "../../error/AppError";
 import asyncHandler from "../../utils/asyncHandler";
 import sendResponse from "../../utils/sendResponse";
+import ServiceModel from "../ourService/ourService.model";
 import { SlotModel } from "../slot/slot.model";
 import BookingModel from "./booking.model";
 
 export const createBooking = asyncHandler(async (req, res) => {
-  const userId = req.user?._id;
-  if (!userId) throw new AppError(404, "you have no permission");
-
+  // const userId = req.user?._id;
+  // if (!userId) throw new AppError(404, "you have no permission");
   const {
-    serviceId,
-    slotId,
+    service,
+    slot,
     vehicleType,
     vehicleBrand,
     vehicleModel,
     manufacturingYear,
     registrationPlate,
+    customer
   } = req.body;
 
   // Check if the slot exists and is available
-  const slot = await SlotModel.findById(slotId).populate("service");
+  const isSlot = await SlotModel.findById(slot).populate("service");
+  console.log(isSlot);
 
-  if (!slot) {
+  if (!isSlot) {
     throw new AppError(404, "Slot not found.");
   }
+  console.log(isSlot.isBooked);
 
-  if (slot.isBooked !== "available") {
+  if (isSlot.isBooked === "booked" || isSlot.isBooked === "canceled") {
     throw new AppError(400, "Slot is not available for booking.");
   }
 
   // Check if the service exists
-  const service = slot.service as any;
+  const isService = isSlot.service._id as any;
+  console.log("isService", isService);
 
-  if (service._id.toString() !== serviceId || service.isDeleted) {
+  const serviceExists = await ServiceModel.findOne({ _id: isService, isDeleted: false });
+  if (!serviceExists) {
     throw new AppError(404, "Service not found or is deleted.");
   }
 
+
   // Create the booking
   const booking = await BookingModel.create({
-    customer: userId,
-    service: serviceId,
-    slot: slotId,
+    customer: customer,
+    service: service,
+    slot: slot,
     vehicleType,
     vehicleBrand,
     vehicleModel,
@@ -50,8 +56,8 @@ export const createBooking = asyncHandler(async (req, res) => {
   });
 
   // Update the slot to 'booked'
-  slot.isBooked = "booked";
-  await slot.save();
+  isSlot.isBooked = "booked";
+  await isSlot.save();
 
   // Prepare the response data
   const responseBooking = await BookingModel.findById(booking._id)
