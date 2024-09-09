@@ -228,6 +228,8 @@ const deleteUserById = asyncHandler(async (req: Request, res: Response) => {
     data: user,
   });
 });
+// do
+
 
 export const AuthControllers = {
   createUser,
