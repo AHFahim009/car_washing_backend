@@ -162,11 +162,14 @@ const updateUser = asyncHandler(async (req: Request, res: Response, next: NextFu
   try {
     const { id } = req.params;
     const payload: Partial<TUser> = req.body;
-
+    const user = await UserModel.findById(id)
+    if (!user) {
+      throw new AppError(404, "user not found")
+    }
     // Upload new photo to Cloudinary if provided
     if (req.file) {
       const photoPath = req.file.path;
-      const photoName = `user_${payload.email}_/_carWashingProject_photo_update`;
+      const photoName = `user_${user.email}_/_carWashingProject_photo`;
       const { optimizedUrl } = await uploadToCloudinary(photoPath, photoName);
       payload.photo = optimizedUrl;
     }
