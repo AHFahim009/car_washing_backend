@@ -11,6 +11,8 @@ import jwt from "jsonwebtoken";
 import config from "../../../config";
 import uploadToCloudinary from "../../utils/cloudinary";
 import mongoose from "mongoose";
+import { v2 as cloudinary } from "cloudinary";
+
 
 
 
@@ -162,18 +164,28 @@ const updateUser = asyncHandler(async (req: Request, res: Response, next: NextFu
   try {
     const { id } = req.params;
     const payload: Partial<TUser> = req.body;
-    const user = await UserModel.findById(id)
+
+    // Find the user in the database
+    const user = await UserModel.findById(id);
     if (!user) {
-      throw new AppError(404, "user not found")
+      throw new AppError(404, "User not found");
     }
+
     // Upload new photo to Cloudinary if provided
     if (req.file) {
       const photoPath = req.file.path;
       const photoName = `user_${user.email}_/_carWashingProject_photo`;
-      const { optimizedUrl } = await uploadToCloudinary(photoPath, photoName);
-      payload.photo = optimizedUrl;
-    }
 
+      // If the user already has a photo, delete the old one from Cloudinary
+      if (user.photo) {
+        const oldPhotoPublicId = extractPublicIdFromUrl(user.photo); // You need to implement this function to get the public_id from the URL
+        await cloudinary.uploader.destroy(oldPhotoPublicId); // Delete the old photo
+      }
+
+      // Upload the new photo and overwrite any existing one
+      const { optimizedUrl } = await uploadToCloudinary(photoPath, photoName);
+      payload.photo = optimizedUrl; // Update payload with new photo URL
+    }
 
     // Update the user in the database
     const updatedUser = await UserModel.findByIdAndUpdate(id, payload, {
@@ -183,7 +195,7 @@ const updateUser = asyncHandler(async (req: Request, res: Response, next: NextFu
     });
 
     if (!updatedUser) {
-      throw new AppError(404, "User not found",);
+      throw new AppError(404, "User not found");
     }
 
     const { password, ...userData } = updatedUser.toObject();
@@ -192,7 +204,7 @@ const updateUser = asyncHandler(async (req: Request, res: Response, next: NextFu
     await session.commitTransaction();
     session.endSession();
 
-    // Send response back to client
+    // Send response back to the client
     sendResponse(res, {
       success: true,
       statusCode: 200,
@@ -206,6 +218,13 @@ const updateUser = asyncHandler(async (req: Request, res: Response, next: NextFu
     next(error);
   }
 });
+
+// Helper function to extract public_id from the Cloudinary URL
+const extractPublicIdFromUrl = (url: string) => {
+  const parts = url.split('/');
+  return parts[parts.length - 1].split('.')[0]; // Extract public_id (last part of the URL without extension)
+};
+
 
 
 

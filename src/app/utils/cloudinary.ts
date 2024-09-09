@@ -11,16 +11,7 @@ cloudinary.config({
 const uploadToCloudinary = async (photoPath: string, photoName: string) => {
   let uploadResult;
   try {
-    // Check if the photo already exists
-    const existingPhoto = await cloudinary.api.resource(photoName).catch(() => null);
-
-    // If the photo exists, delete it to prevent duplication
-    if (existingPhoto) {
-      console.log(`Photo with name ${photoName} already exists. Deleting old version...`);
-      await cloudinary.uploader.destroy(photoName);
-    }
-
-    // Upload the new photo to Cloudinary
+    // Upload the photo to Cloudinary
     uploadResult = await cloudinary.uploader.upload(photoPath, {
       public_id: photoName,
       overwrite: true,
@@ -60,6 +51,5 @@ const uploadToCloudinary = async (photoPath: string, photoName: string) => {
     });
   }
 };
-
 
 export default uploadToCloudinary;
