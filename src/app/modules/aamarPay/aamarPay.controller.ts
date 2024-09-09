@@ -51,10 +51,7 @@ const createPayment = asyncHandler(async (req, res) => {
       success: true,
     });
   } catch (error) {
-    console.error(
-      "Payment request error:",
-      error
-    );
+    console.error("Payment request error:", error);
     sendResponse(res, {
       message: "Failed to create payment request. Please try again later.",
       statusCode: 500,
@@ -76,7 +73,7 @@ const handleSuccessCallback = asyncHandler(async (req, res) => {
   } else {
     // Handle other statuses if needed
     res.redirect(
-      `http://localhost:5173/payment-callback/?status=${pay_status}&tran_id=${tran_id}&amount=${amount}`
+      `http://localhost:5173/payment-callback/?status=${pay_status}&tran_id=${pg_txnid}&amount=${amount}`
     );
   }
 });
