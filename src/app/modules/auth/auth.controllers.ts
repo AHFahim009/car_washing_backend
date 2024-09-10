@@ -177,10 +177,10 @@ const updateUser = asyncHandler(async (req: Request, res: Response, next: NextFu
       const photoName = `user_${user.email}_/_carWashingProject_photo`;
 
       // If the user already has a photo, delete the old one from Cloudinary
-      if (user.photo) {
-        const oldPhotoPublicId = extractPublicIdFromUrl(user.photo); // You need to implement this function to get the public_id from the URL
-        await cloudinary.uploader.destroy(oldPhotoPublicId); // Delete the old photo
-      }
+      // if (user.photo) {
+      //   const oldPhotoPublicId = extractPublicIdFromUrl(user.photo); // You need to implement this function to get the public_id from the URL
+      //   await cloudinary.uploader.destroy(oldPhotoPublicId); // Delete the old photo
+      // }
 
       // Upload the new photo and overwrite any existing one
       const { optimizedUrl } = await uploadToCloudinary(photoPath, photoName);
