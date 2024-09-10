@@ -17,7 +17,7 @@ const createPayment = asyncHandler(async (req, res) => {
   //   });
   // }
 
-  const baseUrl = "http://localhost:8000/api/";
+  const baseUrl = "https://car-washing-backend-fxvk.onrender.com/api/";
 
   const formData = {
     cus_name: customerName || "unknown",
