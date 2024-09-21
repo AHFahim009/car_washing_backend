@@ -41,6 +41,14 @@ export const createSlots = asyncHandler(async (req, res) => {
     const start = new Date(`${date}T${startTime}:00`);
     const end = new Date(`${date}T${endTime}:00`);
 
+    // Handle cases where the provided date is today, and ensure the start time is not in the past
+    if (providedDate.getTime() === today.getTime()) {
+        const currentTime = new Date(); // Current time
+        if (start < currentTime) {
+            throw new AppError(400, "Start time cannot be in the past for today");
+        }
+    }
+
     // Validate the start and end times
     if (end <= start) {
         throw new AppError(400, "End time must be after the start time");
